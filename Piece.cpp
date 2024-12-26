@@ -1,8 +1,7 @@
 #include "Piece.h"
 
-std::string Piece::getName()
+Piece::Piece(const std::string& type, const bool team) : _type(type), _team(team)
 {
-	return _name;
 }
 
 std::string Piece::getType()
@@ -10,7 +9,7 @@ std::string Piece::getType()
 	return _type;
 }
 
-char Piece::getTeam()
+bool Piece::getTeam()
 {
 	return _team;
 }

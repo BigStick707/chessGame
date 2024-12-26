@@ -1,11 +1,8 @@
 #pragma once
 #include "Piece.h"
 
-class Rook
+class Rook : public Piece
 {
-private:
-	Point position;
-
 public:
 
 };
