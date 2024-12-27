@@ -4,12 +4,12 @@ Piece::Piece(const std::string& type, const bool team) : _type(type), _team(team
 {
 }
 
-std::string Piece::getType()
+std::string Piece::getType() const
 {
 	return _type;
 }
 
-bool Piece::getTeam()
+bool Piece::getTeam() const
 {
 	return _team;
 }
