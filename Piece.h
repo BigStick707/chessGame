@@ -15,5 +15,5 @@ public:
 	std::string getType() const;
 	bool getTeam() const;
 	virtual ~Piece() = default;
-	virtual bool move(const Point& position) const = 0;
+	//virtual bool move(const Point& position) const = 0;
 };

@@ -1,14 +1,43 @@
 #include "Board.h"
 #include <iostream>
-
-Board::Board()
+#include <cctype>
+#include <string>
+#include <iostream>
+Board::Board(char* bordStat)
 {
     int i = 0, j = 0;
+    std::string type;
+    bool team;
     for (i = 0; i < 8; ++i)
     {
         for (j = 0; j < 8; ++j)
         {
-            _Board[i][j] = nullptr;
+            unsigned char current = bordStat[i * 8 + j];
+            if (std::isupper(current)) {
+                team = 1;
+                current = tolower(current);
+            }
+            else {
+                team = 0;
+            }
+
+            if (current == '#') {
+                _Board[i][j] = nullptr;
+            }
+            else {
+                std::string str(1, current);
+                _Board[i][j] = new Piece(str, team);;
+            }
+
+            // Bord print to test
+            //if (_Board[i][j] != nullptr) {
+            //    std::cout << _Board[i][j]->getType() << std::endl;
+            //}
+            //else
+            //{
+            //    std::cout << std::endl;
+            //}
+            
         }
     }
 }
@@ -78,28 +107,30 @@ Point* Board::getKingPos(const bool team) const
 
 void Board::validPlaces(const Point& figure)
 {
+    _availablePlaces.clear();
     std::string type = _Board[figure.getY()][figure.getX()]->getType();
     bool team = _Board[figure.getY()][figure.getX()]->getTeam();
     int x = figure.getX(), y = figure.getY();
 
-    if (type == "Rook")
+    if (type == "r")
     {
         //Check -> (right)
         for (int i = x + 1; i < 8; i++)
         {
             Point* newPoint = new Point(i, y);
-            if (isThereFigure(*newPoint)) {
+            if (isThereFigure(*newPoint))
+            {
                 if (_Board[y][i]->getTeam() != team)
                 {
                     _availablePlaces.push_back(newPoint); //opp figure
                 }
-                else 
+                else
                 {
                     delete newPoint;
                 }
-                break; 
+                break;
             }
-            _availablePlaces.push_back(newPoint); 
+            _availablePlaces.push_back(newPoint);
         }
 
         // Check <- (left)
@@ -112,12 +143,51 @@ void Board::validPlaces(const Point& figure)
                 {
                     _availablePlaces.push_back(newPoint); //opp figure
                 }
-                else {
+                else
+                {
                     delete newPoint;
                 }
                 break;
             }
-            _availablePlaces.push_back(newPoint); 
+            _availablePlaces.push_back(newPoint);
+        }
+
+        // Check (down)
+        for (int i = y - 1; i >= 0; i--)
+        {
+            Point* newPoint = new Point(x, i);
+            if (isThereFigure(*newPoint))
+            {
+                if (_Board[i][x]->getTeam() != team)
+                {
+                    _availablePlaces.push_back(newPoint); //opp figure
+                }
+                else
+                {
+                    delete newPoint;
+                }
+                break;
+            }
+            _availablePlaces.push_back(newPoint);
+        }
+
+        // Check (up)
+        for (int i = y + 1; i < 8; i++)
+        {
+            Point* newPoint = new Point(x, i);
+            if (isThereFigure(*newPoint))
+            {
+                if (_Board[i][x]->getTeam() != team)
+                {
+                    _availablePlaces.push_back(newPoint); //opp figure
+                }
+                else
+                {
+                    delete newPoint;
+                }
+                break;
+            }
+            _availablePlaces.push_back(newPoint);
         }
     }
 }
@@ -152,4 +222,15 @@ bool Board::isCheck(const bool team) const
         }
     }
     return false;
+}
+
+
+void Board::moveFigure(Point& src, Point& dst)
+{
+    if (isThereFigure(dst))
+    {
+        removeFigure(dst);
+    }
+    _Board[dst.getY()][dst.getX()] = _Board[src.getY()][src.getX()];
+    _Board[src.getY()][src.getX()] = nullptr;
 }

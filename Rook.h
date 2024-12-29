@@ -1,8 +1,8 @@
-#pragma once
-#include "Piece.h"
-
-class Rook : public Piece
-{
-public:
-
-};
+//#pragma once
+//#include "Piece.h"
+//
+//class Rook : public Piece
+//{
+//public:
+//
+//};
