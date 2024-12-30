@@ -95,7 +95,7 @@ Point* Board::getKingPos(const bool team) const
     {
         for (j = 0; j < 8; ++j)
         {
-            if (_Board[i][j] && (_Board[i][j]->getType()) == "k")
+            if (_Board[i][j] && (_Board[i][j]->getType()) == "k" && (_Board[i][j]->getTeam()) == team)
             {
                 return new Point(j, i);
             }
@@ -293,7 +293,7 @@ bool Board::isCheck(const bool team)
 {
     Point* kingPos = getKingPos(!team);
 
-    int size = _availablePlaces.size(), i = 0, j = 0;
+    int size = 0, i = 0, j = 0;
 
 
 
@@ -309,7 +309,8 @@ bool Board::isCheck(const bool team)
             }
         }
     }
-
+    
+    size = _availablePlaces.size();
 
     for (i = 0; i < size; i++)
     {

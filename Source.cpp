@@ -51,7 +51,7 @@ void main()
 
 	
 
-	strcpy_s(msgToGraphics, "rnbkqbnrppppppp#################################PPPPPPPPRNBKQBNR1"); // just example...
+	strcpy_s(msgToGraphics, "rnbkqbnrppp#pppp###############################RPPPPPPPPRNBKQBNR0"); // just example...
 	Board board(msgToGraphics);
 	bool turn = msgToGraphics[64] - '0';
 	std::cout << turn << std::endl;
@@ -122,7 +122,7 @@ void main()
 				board.moveFigure(sourcePoint, destPoint);
 				
 				
-				if (board.isCheck(turn)) {
+				if (board.isCheck(!turn)) {
 					board.moveFigure(destPoint, sourcePoint);
 					board.placeFigure(destPoint, destPiece);
 					msgToGraphics[0] = (char)(4 + '0');
@@ -130,7 +130,7 @@ void main()
 				}
 				else {
 
-					if (board.isCheck(!turn)) {
+					if (board.isCheck(turn)) {
 						msgToGraphics[0] = (char)(1 + '0');
 					}
 					else {
