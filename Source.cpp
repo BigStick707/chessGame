@@ -19,7 +19,7 @@ void main()
 {
 	srand(time_t(NULL));
 
-	
+	Piece* destPiece = nullptr;
 	Pipe p;
 	bool isConnect = p.connect();
 	
@@ -113,25 +113,45 @@ void main()
 		//}
 		
 		else {
+			board.clearAvailablePlaces();
 			board.validPlaces(sourcePoint);
-			if (board.isMoveValid(sourcePoint)) {
-				board.moveFigure(sourcePoint, destPoint);
+			if (board.isMoveValid(destPoint)) {
+				board.clearAvailablePlaces();
+				destPiece = board.getFigure(destPoint);
 
-				board.validPlaces(sourcePoint);
+				board.moveFigure(sourcePoint, destPoint);
+				
+				
 				if (board.isCheck(turn)) {
-					msgToGraphics[0] = (char)(1 + '0');
+					board.moveFigure(destPoint, sourcePoint);
+					board.placeFigure(destPoint, destPiece);
+					msgToGraphics[0] = (char)(4 + '0');
+
 				}
-				else{
-					msgToGraphics[0] = (char)(0 + '0');
+				else {
+
+					if (board.isCheck(!turn)) {
+						msgToGraphics[0] = (char)(1 + '0');
+					}
+					else {
+						msgToGraphics[0] = (char)(0 + '0');
+						
+					}
+					turn = !turn;
 				}
-				turn = !turn;
+				
+				
 			}
 			else {
 				msgToGraphics[0] = (char)(6 + '0');
 			}
 			
-
 			
+
+
+			//board.moveFigure(sourcePoint, destPoint);
+			//msgToGraphics[0] = (char)(0 + '0');
+			//turn = !turn;
 			
 			
 		}

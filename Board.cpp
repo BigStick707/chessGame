@@ -1,24 +1,24 @@
-#include "Board.h"
+﻿#include "Board.h"
 #include <iostream>
 #include <cctype>
 #include <string>
 #include <iostream>
 Board::Board(char* bordStat)
 {
-    int i = 0, j = 0;
+    int i = 0, j = 0, bordStatRow = 0;
     std::string type;
     bool team;
-    for (i = 0; i < 8; ++i)
+    for (i = 7; i >= 0; i--)
     {
-        for (j = 0; j < 8; ++j)
+        for (j = 0; j < 8; j++)
         {
-            unsigned char current = bordStat[i * 8 + j];
+            unsigned char current = bordStat[bordStatRow * 8 + j];
             if (std::isupper(current)) {
-                team = 1;
+                team = 0;
                 current = tolower(current);
             }
             else {
-                team = 0;
+                team = 1;
             }
 
             if (current == '#') {
@@ -26,7 +26,7 @@ Board::Board(char* bordStat)
             }
             else {
                 std::string str(1, current);
-                _Board[i][j] = new Piece(str, team);;
+                _Board[i][j] = new Piece(str, team);
             }
 
             // Bord print to test
@@ -39,6 +39,7 @@ Board::Board(char* bordStat)
             //}
             
         }
+        bordStatRow++;
     }
 }
 
@@ -66,14 +67,12 @@ bool Board::isThereFigure(const Point& position) const
     return figure;
 }
 
-bool Board::placeFigure(const Point& position, Piece* figure)
+void Board::placeFigure(const Point& position, Piece* figure)
 {
-    if (!isThereFigure(position))
-    {
-        _Board[position.getY()][position.getX()] = figure;
-        return true;
-    }
-    return false;
+
+    _Board[position.getY()][position.getX()] = figure;
+
+
 }
 
 bool Board::removeFigure(const Point& position)
@@ -96,7 +95,7 @@ Point* Board::getKingPos(const bool team) const
     {
         for (j = 0; j < 8; ++j)
         {
-            if (_Board[i][j]->getTeam() == team && _Board[i][j]->getType() == "K" || _Board[i][j]->getType() == "k");
+            if (_Board[i][j]->getTeam() == team && (_Board[i][j]->getType() == "K" || _Board[i][j]->getType() == "k"));
             {
                 return new Point(j, i);
             }
@@ -105,90 +104,172 @@ Point* Board::getKingPos(const bool team) const
 }
 
 
+void Board::deleteOrAdd(Point* point)
+{
+    if (isThereFigure(*point))
+    {
+        delete point;
+    }
+    else
+    {
+        _availablePlaces.push_back(point);
+    }
+}
+
+void Board::deleteOrAdd(Point* point, bool team)
+{
+    if (point->getX() >= 0 && point->getX() < 8 && point->getY() >= 0 && point->getY() < 8)
+    {
+        if (isThereFigure(*point) && getFigure(*point)->getTeam() != team)
+        {
+            _availablePlaces.push_back(point);
+            return;
+        }
+    }
+    delete point;
+}
+
+void Board::deleteOrAddPlacesKnight(int x, int y, bool team)
+{
+    Point* point = new Point(x, y);
+    if (point->getX() >= 0 && point->getX() < 8 && point->getY() >= 0 && point->getY() < 8)
+    {
+        if (isThereFigure(*point) && getFigure(*point)->getTeam() != team)
+        {
+            _availablePlaces.push_back(point);
+        }
+        else if (!isThereFigure(*point))
+        {
+            _availablePlaces.push_back(point);
+        }
+        else
+        {
+            delete point;
+        }
+    }
+}
+
+
+
+//Function will check direction. Will get x and y
+//Right: dx = 1, dy = 0
+//Left: dx = -1, dy = 0
+//Down: dx = 0, dy = -1
+//Up: dx = 0, dy = 1
+//Top right: dx = 1, dy = 1
+//Top left : dx = -1, dy = 1
+//down right : dx = 1, dy = -1
+//down left : dx = -1, dy = -1
+void Board::checkDirection(int x, int y, int dx, int dy, int team)
+{
+    int i = x + dx;
+    int j = y + dy;
+
+    while (i >= 0 && i < 8 && j >= 0 && j < 8)
+    {
+        Point* newPoint = new Point(i, j);
+
+        if (isThereFigure(*newPoint))
+        {
+            if (_Board[j][i]->getTeam() != team)
+            {
+                _availablePlaces.push_back(newPoint); // Opponent figure
+            }
+            else
+            {
+                delete newPoint;
+            }
+            break;
+        }
+
+        _availablePlaces.push_back(newPoint);
+        i += dx;
+        j += dy;
+    }
+}
+
+
+
 void Board::validPlaces(const Point& figure)
 {
-    _availablePlaces.clear();
     std::string type = _Board[figure.getY()][figure.getX()]->getType();
     bool team = _Board[figure.getY()][figure.getX()]->getTeam();
     int x = figure.getX(), y = figure.getY();
 
     if (type == "r")
     {
-        //Check -> (right)
-        for (int i = x + 1; i < 8; i++)
+        checkDirection(x, y, 1, 0, team); // Check -> (right)
+        checkDirection(x, y, -1, 0, team);// Check <- (left)
+        checkDirection(x, y, 0, -1, team);// Check (down)
+        checkDirection(x, y, 0, 1, team); // Check (up)
+    }
+    else if (type == "p")
+    {
+        if (team)
         {
-            Point* newPoint = new Point(i, y);
-            if (isThereFigure(*newPoint))
+            if (y == 6)
             {
-                if (_Board[y][i]->getTeam() != team)
-                {
-                    _availablePlaces.push_back(newPoint); //opp figure
-                }
-                else
-                {
-                    delete newPoint;
-                }
-                break;
+                Point* newPoint1 = new Point(x, y - 2);
+                deleteOrAdd(newPoint1);
             }
-            _availablePlaces.push_back(newPoint);
-        }
+            Point* newPoint2 = new Point(x, y - 1);
+            deleteOrAdd(newPoint2);
 
-        // Check <- (left)
-        for (int i = x - 1; i >= 0; i--)
-        {
-            Point* newPoint = new Point(i, y);
-            if (isThereFigure(*newPoint))
-            {
-                if (_Board[y][i]->getTeam() != team)
-                {
-                    _availablePlaces.push_back(newPoint); //opp figure
-                }
-                else
-                {
-                    delete newPoint;
-                }
-                break;
-            }
-            _availablePlaces.push_back(newPoint);
+            //Eating
+            Point* newPoint3 = new Point(x + 1, y - 1);
+            deleteOrAdd(newPoint3, team);
+            Point* newPoint4 = new Point(x - 1, y - 1);
+            deleteOrAdd(newPoint4, team);
         }
+        else
+        {
+            if (y == 1)
+            {
+                Point* newPoint1 = new Point(x, y + 2);
+                deleteOrAdd(newPoint1);
+            }
+            Point* newPoint2 = new Point(x, y + 1);
+            deleteOrAdd(newPoint2);
 
-        // Check (down)
-        for (int i = y - 1; i >= 0; i--)
-        {
-            Point* newPoint = new Point(x, i);
-            if (isThereFigure(*newPoint))
-            {
-                if (_Board[i][x]->getTeam() != team)
-                {
-                    _availablePlaces.push_back(newPoint); //opp figure
-                }
-                else
-                {
-                    delete newPoint;
-                }
-                break;
-            }
-            _availablePlaces.push_back(newPoint);
+            //Eating
+            Point* newPoint3 = new Point(x + 1, y + 1);
+            deleteOrAdd(newPoint3, team);
+            Point* newPoint4 = new Point(x - 1, y + 1);
+            deleteOrAdd(newPoint4, team);
         }
+    }
+    else if (type == "q")
+    {
+        checkDirection(x, y, 1, 0, team); // Check -> (right)
+        checkDirection(x, y, -1, 0, team);// Check <- (left)
+        checkDirection(x, y, 0, -1, team);// Check (down)
+        checkDirection(x, y, 0, 1, team); // Check (up)
 
-        // Check (up)
-        for (int i = y + 1; i < 8; i++)
-        {
-            Point* newPoint = new Point(x, i);
-            if (isThereFigure(*newPoint))
-            {
-                if (_Board[i][x]->getTeam() != team)
-                {
-                    _availablePlaces.push_back(newPoint); //opp figure
-                }
-                else
-                {
-                    delete newPoint;
-                }
-                break;
-            }
-            _availablePlaces.push_back(newPoint);
-        }
+        checkDirection(x, y, 1, 1, team); // Check top right
+        checkDirection(x, y, -1, 1, team);// Check top left
+        checkDirection(x, y, 1, -1, team);// Check down right
+        checkDirection(x, y, -1, -1, team); // Check down left
+    }
+    else if (type == "b")
+    {
+        checkDirection(x, y, 1, 1, team); // Check top right
+        checkDirection(x, y, -1, 1, team);// Check top left
+        checkDirection(x, y, 1, -1, team);// Check down right
+        checkDirection(x, y, -1, -1, team); // Check down left
+    }
+    else if (type == "n")
+    {
+        deleteOrAddPlacesKnight(x + 1, y + 2, team);
+        deleteOrAddPlacesKnight(x + 2, y + 1, team);
+        deleteOrAddPlacesKnight(x + 2, y - 1, team);
+        deleteOrAddPlacesKnight(x + 1, y - 2, team);
+
+        //----------------------------------------------------------
+
+        deleteOrAddPlacesKnight(x - 1, y + 2, team);
+        deleteOrAddPlacesKnight(x - 2, y + 1, team);
+        deleteOrAddPlacesKnight(x - 2, y - 1, team);
+        deleteOrAddPlacesKnight(x - 1, y - 2, team);
     }
 }
 
@@ -208,29 +289,57 @@ bool Board::isMoveValid(const Point& position) const
 
 
 
-bool Board::isCheck(const bool team) const
+bool Board::isCheck(const bool team)
 {
-    Point* kingPos = getKingPos(!team);
+    Point* kingPos = getKingPos(team);
 
-    int size = _availablePlaces.size(), i = 0;
+    int size = _availablePlaces.size(), i = 0, j = 0;
+
+
+
+
+    for (i = 0; i < 8; ++i)
+    {
+        for (j = 0; j < 8; ++j)
+        {
+            if (_Board[i][j]&&_Board[i][j]->getTeam() == team)
+            {
+                Point piecePos(j, i);
+                validPlaces(piecePos);
+            }
+        }
+    }
+
 
     for (i = 0; i < size; i++)
     {
         if (kingPos->getX() == _availablePlaces[i]->getX() && kingPos->getY() == _availablePlaces[i]->getY())
         {
+            clearAvailablePlaces();
             return true;
         }
     }
+
+    clearAvailablePlaces();
     return false;
+}
+
+void Board::clearAvailablePlaces()
+{
+    for (int i = 0; i < _availablePlaces.size(); i++)
+    {
+        delete _availablePlaces[i];
+    }
+    _availablePlaces.clear();
 }
 
 
 void Board::moveFigure(Point& src, Point& dst)
 {
-    if (isThereFigure(dst))
-    {
-        removeFigure(dst);
-    }
+    //if (isThereFigure(dst))
+    //{
+    //    removeFigure(dst);
+    //}
     _Board[dst.getY()][dst.getX()] = _Board[src.getY()][src.getX()];
     _Board[src.getY()][src.getX()] = nullptr;
 }
