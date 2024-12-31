@@ -18,7 +18,7 @@ public:
 	void placeFigure(const Point& position, Piece* figure);
 	bool removeFigure(const Point& position);
 	Piece* getFigure(const Point& position) const;
-	Point* getKingPos(const bool team) const;
+	Point getKingPos(const bool team) const;
 	void moveFigure(Point& src, Point& dst);
 	void deleteOrAdd(Point* point);
 	void deleteOrAdd(Point* point, bool team);

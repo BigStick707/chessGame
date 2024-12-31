@@ -46,15 +46,13 @@ void main()
 
 	char msgToGraphics[1024];
 	// msgToGraphics should contain the board string accord the protocol
-	// YOUR CODE
-	
 
-	
+	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp################################PPPPPPPPRNBKQBNR0"); // just example...
 
-	strcpy_s(msgToGraphics, "rnbkqbnrppp#pppp###############################RPPPPPPPPRNBKQBNR0"); // just example...
+
 	Board board(msgToGraphics);
 	bool turn = msgToGraphics[64] - '0';
-	std::cout << turn << std::endl;
+
 	p.sendMessageToGraphics(msgToGraphics);   // send the board string
 	
 	// get message from graphics
@@ -62,10 +60,6 @@ void main()
 
 	while (msgFromGraphics != "quit")
 	{
-		// should handle the string the sent from graphics
-		// according the protocol. Ex: e2e4           (move e2 to e4)
-		
-
 		// Extract the source point
 		char sourceX_char = msgFromGraphics[0];
 		char sourceY_char = msgFromGraphics[1];
@@ -82,14 +76,7 @@ void main()
 
 		Point destPoint(destX, destY);
 
-		// YOUR CODE
-		strcpy_s(msgToGraphics, "YOUR CODE"); // msgToGraphics should contain the result of the operation
 		msgToGraphics[1] = 0;
-		/******* JUST FOR EREZ DEBUGGING ******/
-		int r = rand() % 10; // just for debugging......
-		
-		
-		/******* JUST FOR EREZ DEBUGGING ******/
 
 		if (!(board.isThereFigure(sourcePoint)) || board.getFigure(sourcePoint)->getTeam() != turn) {
 			msgToGraphics[0] = (char)(2 + '0');
@@ -102,18 +89,8 @@ void main()
 		else if (sourcePoint.getX() == destPoint.getX() && sourcePoint.getY() == destPoint.getY()) {
 			msgToGraphics[0] = (char)(7 + '0');
 		}
-
-		
-
-		//else if (true) {
-		//	board.validPlaces(sourcePoint);
-
-
-		//	msgToGraphics[0] = (char)(7 + '0');
-		//}
 		
 		else {
-			board.clearAvailablePlaces();
 			board.validPlaces(sourcePoint, false);
 			if (board.isMoveValid(destPoint)) {
 				board.clearAvailablePlaces();
@@ -138,22 +115,12 @@ void main()
 						
 					}
 					turn = !turn;
-				}
-				
-				
+				}				
 			}
 			else {
+				board.clearAvailablePlaces();
 				msgToGraphics[0] = (char)(6 + '0');
 			}
-			
-			
-
-
-			//board.moveFigure(sourcePoint, destPoint);
-			//msgToGraphics[0] = (char)(0 + '0');
-			//turn = !turn;
-			
-			
 		}
 
 		// return result to graphics		

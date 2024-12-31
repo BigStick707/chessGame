@@ -28,16 +28,6 @@ Board::Board(char* bordStat)
                 std::string str(1, current);
                 _Board[i][j] = new Piece(str, team);
             }
-
-            // Bord print to test
-            //if (_Board[i][j] != nullptr) {
-            //    std::cout << _Board[i][j]->getType() << std::endl;
-            //}
-            //else
-            //{
-            //    std::cout << std::endl;
-            //}
-            
         }
         bordStatRow++;
     }
@@ -88,7 +78,7 @@ Piece* Board::getFigure(const Point& position) const
     return _Board[position.getY()][position.getX()];
 }
 
-Point* Board::getKingPos(const bool team) const
+Point Board::getKingPos(const bool team) const
 {
     int i = 0, j = 0;
     for (i = 0; i < 8; ++i)
@@ -97,7 +87,7 @@ Point* Board::getKingPos(const bool team) const
         {
             if (_Board[i][j] && (_Board[i][j]->getType()) == "k" && (_Board[i][j]->getTeam()) == team)
             {
-                return new Point(j, i);
+                return Point(j, i);
             }
         }
     }
@@ -313,7 +303,7 @@ bool Board::isMoveValid(const Point& position) const
 
 bool Board::isCheck(const bool team)
 {
-    Point* kingPos = getKingPos(!team);
+    Point kingPos = getKingPos(!team);
     int size = 0, i = 0, j = 0;
 
     for (i = 0; i < 8; ++i)
@@ -332,7 +322,7 @@ bool Board::isCheck(const bool team)
 
     for (i = 0; i < size; i++)
     {
-        if (kingPos->getX() == _availablePlaces[i]->getX() && kingPos->getY() == _availablePlaces[i]->getY())
+        if (kingPos.getX() == _availablePlaces[i]->getX() && kingPos.getY() == _availablePlaces[i]->getY())
         {
             clearAvailablePlaces();
             return true;
@@ -355,10 +345,6 @@ void Board::clearAvailablePlaces()
 
 void Board::moveFigure(Point& src, Point& dst)
 {
-    //if (isThereFigure(dst))
-    //{
-    //    removeFigure(dst);
-    //}
     _Board[dst.getY()][dst.getX()] = _Board[src.getY()][src.getX()];
     _Board[src.getY()][src.getX()] = nullptr;
 }
