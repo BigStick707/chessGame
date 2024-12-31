@@ -12,8 +12,13 @@ protected:
 
 public:
 	Piece(const std::string& type, const bool team);
-	std::string getType() const;
-	bool getTeam() const;
 	virtual ~Piece() = default;
-	//virtual bool move(const Point& position) const = 0;
+	/*
+	* Function will get piece type
+	*/
+	std::string getType() const;
+	/*
+	* Function will get piece team
+	*/
+	bool getTeam() const;
 };

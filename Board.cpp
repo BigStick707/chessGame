@@ -17,19 +17,23 @@ Board::Board(char* bordStat)
             unsigned char current = bordStat[bordStatRow * 8 + j];
 
             // Determine the team and normalize the piece character to lowercase
-            if (std::isupper(current)) {
+            if (std::isupper(current))
+            {
                 team = 0; // Uppercase indicates Team 0
                 current = tolower(current);
             }
-            else {
+            else
+            {
                 team = 1; // Lowercase indicates Team 1
             }
 
             // Handle empty spaces ('#') or create a new Piece object
-            if (current == '#') {
+            if (current == '#')
+            {
                 _Board[i][j] = nullptr; // Empty space
             }
-            else {
+            else
+            {
                 std::string str(1, current); // Convert character to string
                 _Board[i][j] = new Piece(str, team); // Create new piece
             }
@@ -51,10 +55,12 @@ Board::~Board()
     }
 }
 
+/*
+* Function will check if there is figure in the position it got from parametrs
+*/
 bool Board::isThereFigure(const Point& position) const
 {
     bool figure = false;
-
     if (_Board[position.getY()][position.getX()] != nullptr)
     {
         figure = true;
@@ -63,6 +69,10 @@ bool Board::isThereFigure(const Point& position) const
     return figure;
 }
 
+
+/*
+* Function will place figure that he got from parametrs to position that it got from parametrs
+*/
 void Board::placeFigure(const Point& position, Piece* figure)
 {
 
@@ -71,6 +81,9 @@ void Board::placeFigure(const Point& position, Piece* figure)
 
 }
 
+/*
+* Function will remove figure from position it got from parametrs
+*/
 bool Board::removeFigure(const Point& position)
 {
     delete _Board[position.getY()][position.getX()];
@@ -79,11 +92,17 @@ bool Board::removeFigure(const Point& position)
     return true;
 }
 
+/*
+* Function will return figure in the position it got from parametrs
+*/
 Piece* Board::getFigure(const Point& position) const
 {
     return _Board[position.getY()][position.getX()];
 }
 
+/*
+* Function will get king position with the team it got from parametrs
+*/
 Point Board::getKingPos(const bool team) const
 {
     int i = 0, j = 0;
@@ -99,9 +118,12 @@ Point Board::getKingPos(const bool team) const
     }
 }
 
-
-void Board::deleteOrAdd(Point* point)
+/*
+* Function will get x and y and save the point if the move is possible
+*/
+void Board::deleteOrAdd(const int x, const int y)
 {
+    Point* point = new Point(x, y);
     if (isThereFigure(*point))
     {
         delete point;
@@ -112,8 +134,12 @@ void Board::deleteOrAdd(Point* point)
     }
 }
 
-void Board::deleteOrAdd(Point* point, bool team)
+/*
+* Function will get x and y and save the point if the move is possible, the move is possible ONLY if there is enemy figure.
+*/
+void Board::deleteOrAdd(const int x, const int y, const bool team)
 {
+    Point* point = new Point(x, y);
     if (point->getX() >= 0 && point->getX() < 8 && point->getY() >= 0 && point->getY() < 8)
     {
         if (isThereFigure(*point) && getFigure(*point)->getTeam() != team)
@@ -125,7 +151,10 @@ void Board::deleteOrAdd(Point* point, bool team)
     delete point;
 }
 
-void Board::deleteOrAddPlacesDot(int x, int y, bool team)
+/*
+* Function will get x and y and save the point if the move is possible. The move is possible if there is no teammate figure, if there is enemy figure OR there is empty place.
+*/
+void Board::deleteOrAddPlacesDot(const int x, const int y, const bool team)
 {
     Point* point = new Point(x, y);
     if (point->getX() >= 0 && point->getX() < 8 && point->getY() >= 0 && point->getY() < 8)
@@ -156,7 +185,7 @@ void Board::deleteOrAddPlacesDot(int x, int y, bool team)
 //Top left : dx = -1, dy = 1
 //down right : dx = 1, dy = -1
 //down left : dx = -1, dy = -1
-void Board::checkDirection(int x, int y, int dx, int dy, int team)
+void Board::checkDirection(const int x, const int y, const int dx, const int dy, const bool team)
 {
     int i = x + dx;
     int j = y + dy;
@@ -185,40 +214,38 @@ void Board::checkDirection(int x, int y, int dx, int dy, int team)
 }
 
 
-
+/*
+* Function will get point and additional Parameter onlyEat to calculate the figure possible moves (points).
+* "only Eat" basiacally needed for check calculation with pawn units. onlyEat = true - pawn regular move will not be calculated
+*/
 void Board::validPlaces(const Point& figure, bool onlyEat)
 {
     std::string type = _Board[figure.getY()][figure.getX()]->getType();
     bool team = _Board[figure.getY()][figure.getX()]->getTeam();
     int x = figure.getX(), y = figure.getY();
 
-    if (type == "r")
+    if (type == "r") // Rook
     {
         checkDirection(x, y, 1, 0, team); // Check -> (right)
         checkDirection(x, y, -1, 0, team);// Check <- (left)
         checkDirection(x, y, 0, -1, team);// Check (down)
         checkDirection(x, y, 0, 1, team); // Check (up)
     }
-    else if (type == "p")
+    else if (type == "p") // Pawn
     {
         if (team)
         {
             if (!onlyEat)
             {
-                if (y == 6)
+                if (y == 6) //Check if first time moving
                 {
-                    Point* newPoint1 = new Point(x, y - 2);
-                    deleteOrAdd(newPoint1);
+                    deleteOrAdd(x, y - 2);
                 }
-                Point* newPoint2 = new Point(x, y - 1);
-                deleteOrAdd(newPoint2);
+                deleteOrAdd(x, y - 1);
             }
-
             //Eating
-            Point* newPoint3 = new Point(x + 1, y - 1);
-            deleteOrAdd(newPoint3, team);
-            Point* newPoint4 = new Point(x - 1, y - 1);
-            deleteOrAdd(newPoint4, team);
+            deleteOrAdd(x + 1, y - 1, team);
+            deleteOrAdd(x - 1, y - 1, team);
 
 
         }
@@ -226,25 +253,18 @@ void Board::validPlaces(const Point& figure, bool onlyEat)
         {
             if (!onlyEat)
             {
-                if (y == 1)
+                if (y == 1) //Check if first time moving
                 {
-                    Point* newPoint1 = new Point(x, y + 2);
-                    deleteOrAdd(newPoint1);
+                    deleteOrAdd(x, y + 2);
                 }
-                Point* newPoint2 = new Point(x, y + 1);
-                deleteOrAdd(newPoint2);
+                deleteOrAdd(x, y + 1);
             }
-
-
             //Eating
-            Point* newPoint3 = new Point(x + 1, y + 1);
-            deleteOrAdd(newPoint3, team);
-            Point* newPoint4 = new Point(x - 1, y + 1);
-            deleteOrAdd(newPoint4, team);
+            deleteOrAdd(x + 1, y + 1, team);
+            deleteOrAdd(x - 1, y + 1, team);
         }
     }
-
-    else if (type == "q")
+    else if (type == "q") // Queen
     {
         checkDirection(x, y, 1, 0, team); // Check -> (right)
         checkDirection(x, y, -1, 0, team);// Check <- (left)
@@ -256,15 +276,16 @@ void Board::validPlaces(const Point& figure, bool onlyEat)
         checkDirection(x, y, 1, -1, team);// Check down right
         checkDirection(x, y, -1, -1, team); // Check down left
     }
-    else if (type == "b")
+    else if (type == "b") // Bishop
     {
         checkDirection(x, y, 1, 1, team);  // Check top right
         checkDirection(x, y, -1, 1, team); // Check top left
         checkDirection(x, y, 1, -1, team); // Check down right
         checkDirection(x, y, -1, -1, team);// Check down left
     }
-    else if (type == "n")
+    else if (type == "n") // Knight
     {
+        //Right part
         deleteOrAddPlacesDot(x + 1, y + 2, team);
         deleteOrAddPlacesDot(x + 2, y + 1, team);
         deleteOrAddPlacesDot(x + 2, y - 1, team);
@@ -272,12 +293,13 @@ void Board::validPlaces(const Point& figure, bool onlyEat)
 
         //----------------------------------------------------------
 
+        //Left part
         deleteOrAddPlacesDot(x - 1, y + 2, team);
         deleteOrAddPlacesDot(x - 2, y + 1, team);
         deleteOrAddPlacesDot(x - 2, y - 1, team);
         deleteOrAddPlacesDot(x - 1, y - 2, team);
     }
-    else if (type == "k")
+    else if (type == "k") // King
     {
         deleteOrAddPlacesDot(x, y + 1, team); //middle top
         deleteOrAddPlacesDot(x + 1, y + 1, team); //right top
@@ -291,10 +313,12 @@ void Board::validPlaces(const Point& figure, bool onlyEat)
     }
 }
 
+/*
+* Function will check, if the figure can be moved to the user position. Function gets position and returns true if everything okay and false if figure cannot be moved
+*/
 bool Board::isMoveValid(const Point& position) const
 {
     int size = _availablePlaces.size(), i = 0;
-
     for (i = 0; i < size; i++)
     {
         if (position.getX() == _availablePlaces[i]->getX() && position.getY() == _availablePlaces[i]->getY())
@@ -306,12 +330,13 @@ bool Board::isMoveValid(const Point& position) const
 }
 
 
-
+/*
+* Function will check if the king of the team is under check
+*/
 bool Board::isCheck(const bool team)
 {
-    Point kingPos = getKingPos(!team); // Get the position of the opponent's king
+    Point kingPos = getKingPos(!team);
     int size = 0, i = 0, j = 0;
-
     // Iterate over all squares on the board
     for (i = 0; i < 8; ++i)
     {
@@ -325,9 +350,7 @@ bool Board::isCheck(const bool team)
             }
         }
     }
-
     size = _availablePlaces.size(); // Get the total number of valid moves for the team
-
     // Check if any valid move can reach the opponent's king
     for (i = 0; i < size; i++)
     {
@@ -337,11 +360,13 @@ bool Board::isCheck(const bool team)
             return true; // The king is in check
         }
     }
-
     clearAvailablePlaces(); // Clear the list of available places
     return false; // The king is not in check
 }
 
+/*
+* Function will clear Available places vector and delete/free allocated points.
+*/
 void Board::clearAvailablePlaces()
 {
     // Delete all dynamically allocated Points in the _availablePlaces vector
@@ -352,6 +377,9 @@ void Board::clearAvailablePlaces()
     _availablePlaces.clear(); // Clear the vector
 }
 
+/*
+* Function will move figure from source to dest (points)
+*/
 void Board::moveFigure(Point& src, Point& dst)
 {
     // Move the piece from the source position to the destination position

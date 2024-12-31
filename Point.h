@@ -8,6 +8,13 @@ private:
 
 public:
 	Point(int x, int y);
+	/*
+	* Function will get X
+	*/
 	int getX() const;
+
+	/*
+	* Function will get Y
+	*/
 	int getY() const;
 };
