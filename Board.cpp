@@ -129,7 +129,7 @@ void Board::deleteOrAdd(Point* point, bool team)
     delete point;
 }
 
-void Board::deleteOrAddPlacesKnight(int x, int y, bool team)
+void Board::deleteOrAddPlacesDot(int x, int y, bool team)
 {
     Point* point = new Point(x, y);
     if (point->getX() >= 0 && point->getX() < 8 && point->getY() >= 0 && point->getY() < 8)
@@ -252,24 +252,36 @@ void Board::validPlaces(const Point& figure)
     }
     else if (type == "b")
     {
-        checkDirection(x, y, 1, 1, team); // Check top right
-        checkDirection(x, y, -1, 1, team);// Check top left
-        checkDirection(x, y, 1, -1, team);// Check down right
-        checkDirection(x, y, -1, -1, team); // Check down left
+        checkDirection(x, y, 1, 1, team);  // Check top right
+        checkDirection(x, y, -1, 1, team); // Check top left
+        checkDirection(x, y, 1, -1, team); // Check down right
+        checkDirection(x, y, -1, -1, team);// Check down left
     }
     else if (type == "n")
     {
-        deleteOrAddPlacesKnight(x + 1, y + 2, team);
-        deleteOrAddPlacesKnight(x + 2, y + 1, team);
-        deleteOrAddPlacesKnight(x + 2, y - 1, team);
-        deleteOrAddPlacesKnight(x + 1, y - 2, team);
+        deleteOrAddPlacesDot(x + 1, y + 2, team);
+        deleteOrAddPlacesDot(x + 2, y + 1, team);
+        deleteOrAddPlacesDot(x + 2, y - 1, team);
+        deleteOrAddPlacesDot(x + 1, y - 2, team);
 
         //----------------------------------------------------------
 
-        deleteOrAddPlacesKnight(x - 1, y + 2, team);
-        deleteOrAddPlacesKnight(x - 2, y + 1, team);
-        deleteOrAddPlacesKnight(x - 2, y - 1, team);
-        deleteOrAddPlacesKnight(x - 1, y - 2, team);
+        deleteOrAddPlacesDot(x - 1, y + 2, team);
+        deleteOrAddPlacesDot(x - 2, y + 1, team);
+        deleteOrAddPlacesDot(x - 2, y - 1, team);
+        deleteOrAddPlacesDot(x - 1, y - 2, team);
+    }
+    else if (type == "k")
+    {
+        deleteOrAddPlacesDot(x, y + 1, team); //middle top
+        deleteOrAddPlacesDot(x + 1, y + 1, team); //right top
+        deleteOrAddPlacesDot(x - 1, y + 1, team); //left top
+        deleteOrAddPlacesDot(x + 1, y, team); //right
+        deleteOrAddPlacesDot(x - 1, y, team); //left
+        deleteOrAddPlacesDot(x, y - 1, team); //middle down
+        deleteOrAddPlacesDot(x + 1, y - 1, team); //right down
+        deleteOrAddPlacesDot(x - 1, y - 1, team); //left down
+
     }
 }
 
@@ -292,11 +304,7 @@ bool Board::isMoveValid(const Point& position) const
 bool Board::isCheck(const bool team)
 {
     Point* kingPos = getKingPos(!team);
-
     int size = 0, i = 0, j = 0;
-
-
-
 
     for (i = 0; i < 8; ++i)
     {

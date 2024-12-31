@@ -22,7 +22,7 @@ public:
 	void moveFigure(Point& src, Point& dst);
 	void deleteOrAdd(Point* point);
 	void deleteOrAdd(Point* point, bool team);
-	void deleteOrAddPlacesKnight(const int x, const int y, const bool team);
+	void deleteOrAddPlacesDot(const int x, const int y, const bool team);
 	void checkDirection(int x, int y, int dx, int dy, int team);
 
 	void validPlaces(const Point& figure);
