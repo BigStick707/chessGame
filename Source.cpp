@@ -114,7 +114,7 @@ void main()
 		
 		else {
 			board.clearAvailablePlaces();
-			board.validPlaces(sourcePoint);
+			board.validPlaces(sourcePoint, false);
 			if (board.isMoveValid(destPoint)) {
 				board.clearAvailablePlaces();
 				destPiece = board.getFigure(destPoint);

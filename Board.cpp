@@ -190,7 +190,7 @@ void Board::checkDirection(int x, int y, int dx, int dy, int team)
 
 
 
-void Board::validPlaces(const Point& figure)
+void Board::validPlaces(const Point& figure, bool onlyEat)
 {
     std::string type = _Board[figure.getY()][figure.getX()]->getType();
     bool team = _Board[figure.getY()][figure.getX()]->getTeam();
@@ -207,29 +207,38 @@ void Board::validPlaces(const Point& figure)
     {
         if (team)
         {
-            if (y == 6)
+            if (!onlyEat)
             {
-                Point* newPoint1 = new Point(x, y - 2);
-                deleteOrAdd(newPoint1);
+                if (y == 6)
+                {
+                    Point* newPoint1 = new Point(x, y - 2);
+                    deleteOrAdd(newPoint1);
+                }
+                Point* newPoint2 = new Point(x, y - 1);
+                deleteOrAdd(newPoint2);
             }
-            Point* newPoint2 = new Point(x, y - 1);
-            deleteOrAdd(newPoint2);
 
             //Eating
             Point* newPoint3 = new Point(x + 1, y - 1);
             deleteOrAdd(newPoint3, team);
             Point* newPoint4 = new Point(x - 1, y - 1);
             deleteOrAdd(newPoint4, team);
+
+
         }
         else
         {
-            if (y == 1)
+            if (!onlyEat)
             {
-                Point* newPoint1 = new Point(x, y + 2);
-                deleteOrAdd(newPoint1);
+                if (y == 1)
+                {
+                    Point* newPoint1 = new Point(x, y + 2);
+                    deleteOrAdd(newPoint1);
+                }
+                Point* newPoint2 = new Point(x, y + 1);
+                deleteOrAdd(newPoint2);
             }
-            Point* newPoint2 = new Point(x, y + 1);
-            deleteOrAdd(newPoint2);
+
 
             //Eating
             Point* newPoint3 = new Point(x + 1, y + 1);
@@ -238,6 +247,7 @@ void Board::validPlaces(const Point& figure)
             deleteOrAdd(newPoint4, team);
         }
     }
+
     else if (type == "q")
     {
         checkDirection(x, y, 1, 0, team); // Check -> (right)
@@ -313,7 +323,7 @@ bool Board::isCheck(const bool team)
             if (_Board[i][j]&&_Board[i][j]->getTeam() == team)
             {
                 Point piecePos(j, i);
-                validPlaces(piecePos);
+                validPlaces(piecePos, true);
             }
         }
     }

@@ -25,7 +25,7 @@ public:
 	void deleteOrAddPlacesDot(const int x, const int y, const bool team);
 	void checkDirection(int x, int y, int dx, int dy, int team);
 
-	void validPlaces(const Point& figure);
+	void validPlaces(const Point& figure, bool onlyEat);
 	bool isMoveValid(const Point& position) const;
 	bool isCheck(const bool team);
 	void clearAvailablePlaces();
