@@ -3,6 +3,8 @@
 #include <cctype>
 #include <string>
 #include <iostream>
+
+
 Board::Board(char* bordStat)
 {
     int i = 0, j = 0, bordStatRow = 0;
@@ -13,25 +15,29 @@ Board::Board(char* bordStat)
         for (j = 0; j < 8; j++)
         {
             unsigned char current = bordStat[bordStatRow * 8 + j];
+
+            // Determine the team and normalize the piece character to lowercase
             if (std::isupper(current)) {
-                team = 0;
+                team = 0; // Uppercase indicates Team 0
                 current = tolower(current);
             }
             else {
-                team = 1;
+                team = 1; // Lowercase indicates Team 1
             }
 
+            // Handle empty spaces ('#') or create a new Piece object
             if (current == '#') {
-                _Board[i][j] = nullptr;
+                _Board[i][j] = nullptr; // Empty space
             }
             else {
-                std::string str(1, current);
-                _Board[i][j] = new Piece(str, team);
+                std::string str(1, current); // Convert character to string
+                _Board[i][j] = new Piece(str, team); // Create new piece
             }
         }
-        bordStatRow++;
+        bordStatRow++; // Move to the next row in the input array
     }
 }
+
 
 Board::~Board()
 {
@@ -303,48 +309,52 @@ bool Board::isMoveValid(const Point& position) const
 
 bool Board::isCheck(const bool team)
 {
-    Point kingPos = getKingPos(!team);
+    Point kingPos = getKingPos(!team); // Get the position of the opponent's king
     int size = 0, i = 0, j = 0;
 
+    // Iterate over all squares on the board
     for (i = 0; i < 8; ++i)
     {
         for (j = 0; j < 8; ++j)
         {
-            if (_Board[i][j]&&_Board[i][j]->getTeam() == team)
+            // If the square contains a piece of the given team, calculate its valid moves
+            if (_Board[i][j] && _Board[i][j]->getTeam() == team)
             {
-                Point piecePos(j, i);
-                validPlaces(piecePos, true);
+                Point piecePos(j, i); // Create a point for the piece position
+                validPlaces(piecePos, true); // Generate valid moves for the piece
             }
         }
     }
-    
-    size = _availablePlaces.size();
 
+    size = _availablePlaces.size(); // Get the total number of valid moves for the team
+
+    // Check if any valid move can reach the opponent's king
     for (i = 0; i < size; i++)
     {
         if (kingPos.getX() == _availablePlaces[i]->getX() && kingPos.getY() == _availablePlaces[i]->getY())
         {
-            clearAvailablePlaces();
-            return true;
+            clearAvailablePlaces(); // Clear the list of available places
+            return true; // The king is in check
         }
     }
 
-    clearAvailablePlaces();
-    return false;
+    clearAvailablePlaces(); // Clear the list of available places
+    return false; // The king is not in check
 }
 
 void Board::clearAvailablePlaces()
 {
+    // Delete all dynamically allocated Points in the _availablePlaces vector
     for (int i = 0; i < _availablePlaces.size(); i++)
     {
         delete _availablePlaces[i];
     }
-    _availablePlaces.clear();
+    _availablePlaces.clear(); // Clear the vector
 }
-
 
 void Board::moveFigure(Point& src, Point& dst)
 {
+    // Move the piece from the source position to the destination position
     _Board[dst.getY()][dst.getX()] = _Board[src.getY()][src.getX()];
-    _Board[src.getY()][src.getX()] = nullptr;
+    _Board[src.getY()][src.getX()] = nullptr; // Set the source position to empty
 }
